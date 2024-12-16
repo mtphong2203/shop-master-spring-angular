@@ -10,11 +10,14 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.maiphong.shopmaster.dtos.category.CategoryDTO;
 import com.maiphong.shopmaster.dtos.product.ProductCreateUpdateDTO;
 import com.maiphong.shopmaster.dtos.product.ProductMasterDTO;
 import com.maiphong.shopmaster.exceptions.ResourceNotFoundException;
 import com.maiphong.shopmaster.mappers.ProductMapper;
+import com.maiphong.shopmaster.models.Category;
 import com.maiphong.shopmaster.models.Product;
+import com.maiphong.shopmaster.repositories.CategoryRepository;
 import com.maiphong.shopmaster.repositories.ProductRepository;
 
 @Service
@@ -22,11 +25,14 @@ import com.maiphong.shopmaster.repositories.ProductRepository;
 public class ProductService implements IProductService {
 
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
     private final ProductMapper productMapper;
 
-    public ProductService(ProductRepository productRepository, ProductMapper productMapper) {
+    public ProductService(ProductRepository productRepository, ProductMapper productMapper,
+            CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
         this.productMapper = productMapper;
+        this.categoryRepository = categoryRepository;
     }
 
     @Override
@@ -37,6 +43,13 @@ public class ProductService implements IProductService {
         // convert all to dto
         List<ProductMasterDTO> productMasters = categories.stream().map(product -> {
             ProductMasterDTO productMaster = productMapper.toMasterDTO(product);
+            if (product.getCategory() != null) {
+                CategoryDTO categoryDTO = new CategoryDTO();
+                categoryDTO.setId(product.getCategory().getId());
+                categoryDTO.setName(product.getCategory().getName());
+                categoryDTO.setDescription(product.getCategory().getDescription());
+                productMaster.setCategoryDTO(categoryDTO);
+            }
             return productMaster;
         }).toList();
 
@@ -51,6 +64,14 @@ public class ProductService implements IProductService {
             throw new ResourceNotFoundException("Product is not found");
         }
         ProductMasterDTO productMaster = productMapper.toMasterDTO(product);
+        // Check if product exist in category
+        if (product.getCategory() != null) {
+            CategoryDTO categoryDTO = new CategoryDTO();
+            categoryDTO.setId(product.getCategory().getId());
+            categoryDTO.setName(product.getCategory().getName());
+            categoryDTO.setDescription(product.getCategory().getDescription());
+            productMaster.setCategoryDTO(categoryDTO);
+        }
         return productMaster;
     }
 
@@ -70,6 +91,14 @@ public class ProductService implements IProductService {
 
         List<ProductMasterDTO> productMasters = categories.stream().map(product -> {
             ProductMasterDTO productMaster = productMapper.toMasterDTO(product);
+            // Check if product exist in category
+            if (product.getCategory() != null) {
+                CategoryDTO categoryDTO = new CategoryDTO();
+                categoryDTO.setId(product.getCategory().getId());
+                categoryDTO.setName(product.getCategory().getName());
+                categoryDTO.setDescription(product.getCategory().getDescription());
+                productMaster.setCategoryDTO(categoryDTO);
+            }
             return productMaster;
         }).toList();
 
@@ -92,6 +121,14 @@ public class ProductService implements IProductService {
 
         Page<ProductMasterDTO> productMasters = categories.map(product -> {
             ProductMasterDTO productMaster = productMapper.toMasterDTO(product);
+            // Check if product exist in category
+            if (product.getCategory() != null) {
+                CategoryDTO categoryDTO = new CategoryDTO();
+                categoryDTO.setId(product.getCategory().getId());
+                categoryDTO.setName(product.getCategory().getName());
+                categoryDTO.setDescription(product.getCategory().getDescription());
+                productMaster.setCategoryDTO(categoryDTO);
+            }
             return productMaster;
         });
 
@@ -105,10 +142,31 @@ public class ProductService implements IProductService {
         }
 
         Product newProduct = productMapper.toEntity(productDTO);
+        if (productDTO.getCategoryId() != null) {
+            Category category = new Category();
+            category.setId(productDTO.getCategoryId());
+
+            newProduct.setCategory(category);
+        }
 
         newProduct = productRepository.save(newProduct);
 
-        return productMapper.toMasterDTO(newProduct);
+        ProductMasterDTO productMasterDTO = productMapper.toMasterDTO(newProduct);
+
+        // Get category
+        Category category = categoryRepository.findById(productDTO.getCategoryId()).orElse(null);
+
+        if (category != null) {
+            // convert category to dto
+            CategoryDTO categoryDTO = new CategoryDTO();
+            categoryDTO.setId(category.getId());
+            categoryDTO.setName(category.getName());
+            categoryDTO.setDescription(category.getDescription());
+            // set category dto into product master
+            productMasterDTO.setCategoryDTO(categoryDTO);
+        }
+
+        return productMasterDTO;
     }
 
     @Override
@@ -125,10 +183,30 @@ public class ProductService implements IProductService {
 
         product = productMapper.toEntity(productDTO, product);
         product.setUpdatedAt(ZonedDateTime.now());
+        if (productDTO.getCategoryId() != null) {
+            Category category = new Category();
+            category.setId(productDTO.getCategoryId());
+            product.setCategory(category);
+        }
 
         product = productRepository.save(product);
 
-        return productMapper.toMasterDTO(product);
+        ProductMasterDTO productMasterDTO = productMapper.toMasterDTO(product);
+
+        // Get category
+        Category category = categoryRepository.findById(productDTO.getCategoryId()).orElse(null);
+
+        if (category != null) {
+            // convert category to dto
+            CategoryDTO categoryDTO = new CategoryDTO();
+            categoryDTO.setId(category.getId());
+            categoryDTO.setName(category.getName());
+            categoryDTO.setDescription(category.getDescription());
+            // set category dto into product master
+            productMasterDTO.setCategoryDTO(categoryDTO);
+        }
+
+        return productMasterDTO;
     }
 
     @Override

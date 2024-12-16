@@ -1,6 +1,7 @@
 package com.maiphong.shopmaster.dtos.product;
 
 import com.maiphong.shopmaster.dtos.MasterDTO;
+import com.maiphong.shopmaster.dtos.category.CategoryDTO;
 
 import lombok.*;
 
@@ -18,4 +19,6 @@ public class ProductMasterDTO extends MasterDTO {
     private String brand;
 
     private String thumbnailUrl;
+
+    private CategoryDTO categoryDTO;
 }

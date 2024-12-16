@@ -2,6 +2,9 @@ package com.maiphong.shopmaster.models;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.*;
 
@@ -27,5 +30,9 @@ public class Product extends MasterModel {
     private String brand;
 
     private String thumbnailUrl;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
 
 }
