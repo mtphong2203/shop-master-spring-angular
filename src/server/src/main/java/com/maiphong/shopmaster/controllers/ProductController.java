@@ -51,7 +51,7 @@ public class ProductController {
     }
 
     @GetMapping("/search-paginated")
-    public ResponseEntity<?> searchPainatedProduct(
+    public ResponseEntity<?> searchPaginatedProduct(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false, defaultValue = "name") String sortBy,
             @RequestParam(required = false, defaultValue = "asc") String orderBy,

@@ -45,7 +45,7 @@ public class PromotionController {
     }
 
     @GetMapping("/search-paginated")
-    public ResponseEntity<?> searchPainatedPromotion(
+    public ResponseEntity<?> searchPaginatedPromotion(
             @RequestParam(required = false) double discountAmount,
             @RequestParam(required = false, defaultValue = "endDate") String sortBy,
             @RequestParam(required = false, defaultValue = "asc") String promotionBy,

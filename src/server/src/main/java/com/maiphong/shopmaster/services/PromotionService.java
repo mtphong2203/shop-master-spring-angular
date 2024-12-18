@@ -32,10 +32,10 @@ public class PromotionService implements IPromotionService {
     @Override
     public List<PromotionMasterDTO> getAll() {
         // Get all promotion
-        List<Promotion> categories = promotionRepository.findAll();
+        List<Promotion> promotions = promotionRepository.findAll();
 
         // convert all to dto
-        List<PromotionMasterDTO> promotionMasters = categories.stream().map(promotion -> {
+        List<PromotionMasterDTO> promotionMasters = promotions.stream().map(promotion -> {
             PromotionMasterDTO promotionMaster = promotionMapper.toMasterDTO(promotion);
             return promotionMaster;
         }).toList();

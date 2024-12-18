@@ -65,9 +65,9 @@ public class OrderService implements IOrderService {
             return cb.equal(root.get("orderStatus"), orderStatus);
         };
 
-        Page<Order> categories = orderRepository.findAll(spec, pageable);
+        Page<Order> orders = orderRepository.findAll(spec, pageable);
 
-        Page<OrderMasterDTO> orderMasters = categories.map(order -> {
+        Page<OrderMasterDTO> orderMasters = orders.map(order -> {
             OrderMasterDTO orderMaster = orderMapper.toMasterDTO(order);
             return orderMaster;
         });

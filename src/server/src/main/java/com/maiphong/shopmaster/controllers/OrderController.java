@@ -46,7 +46,7 @@ public class OrderController {
     }
 
     @GetMapping("/search-paginated")
-    public ResponseEntity<?> searchPainatedOrder(
+    public ResponseEntity<?> searchPaginatedOrder(
             @RequestParam(required = false) OrderStatus orderStatus,
             @RequestParam(required = false, defaultValue = "totalAmount") String sortBy,
             @RequestParam(required = false, defaultValue = "asc") String orderBy,

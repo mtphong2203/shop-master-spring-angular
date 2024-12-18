@@ -51,7 +51,7 @@ public class CategoryController {
     }
 
     @GetMapping("/search-paginated")
-    public ResponseEntity<?> searchPainatedCategory(
+    public ResponseEntity<?> searchPaginatedCategory(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false, defaultValue = "name") String sortBy,
             @RequestParam(required = false, defaultValue = "asc") String orderBy,
