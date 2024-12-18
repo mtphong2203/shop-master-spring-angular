@@ -1,5 +1,7 @@
 package com.maiphong.shopmaster.dtos.user;
 
+import java.util.UUID;
+
 import org.hibernate.validator.constraints.Length;
 
 import jakarta.validation.constraints.NotNull;
@@ -34,4 +36,5 @@ public class UserCreateUpdateDTO {
 
     private boolean isActive;
 
+    private UUID roleId;
 }

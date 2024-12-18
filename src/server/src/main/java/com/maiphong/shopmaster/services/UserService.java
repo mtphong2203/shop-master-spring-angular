@@ -1,8 +1,12 @@
 package com.maiphong.shopmaster.services;
 
 import java.time.ZonedDateTime;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,7 +18,9 @@ import com.maiphong.shopmaster.dtos.user.UserCreateUpdateDTO;
 import com.maiphong.shopmaster.dtos.user.UserMasterDTO;
 import com.maiphong.shopmaster.exceptions.ResourceNotFoundException;
 import com.maiphong.shopmaster.mappers.UserMapper;
+import com.maiphong.shopmaster.models.Role;
 import com.maiphong.shopmaster.models.User;
+import com.maiphong.shopmaster.repositories.RoleRepository;
 import com.maiphong.shopmaster.repositories.UserRepository;
 
 @Service
@@ -22,10 +28,12 @@ import com.maiphong.shopmaster.repositories.UserRepository;
 public class UserService implements IUserService {
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     private final UserMapper userMapper;
 
-    public UserService(UserRepository userRepository, UserMapper userMapper) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, UserMapper userMapper) {
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
         this.userMapper = userMapper;
     }
 
@@ -37,6 +45,9 @@ public class UserService implements IUserService {
         // convert all to dto
         List<UserMasterDTO> userMasters = categories.stream().map(user -> {
             UserMasterDTO userMaster = userMapper.toMasterDTO(user);
+            if (user.getRoles() != null) {
+                userMaster.setRole(user.getRoles().stream().map(role -> role.getName()).collect(Collectors.toSet()));
+            }
             return userMaster;
         }).toList();
 
@@ -51,6 +62,9 @@ public class UserService implements IUserService {
             throw new ResourceNotFoundException("User is not found");
         }
         UserMasterDTO userMaster = userMapper.toMasterDTO(user);
+        if (user.getRoles() != null) {
+            userMaster.setRole(user.getRoles().stream().map(role -> role.getName()).collect(Collectors.toSet()));
+        }
         return userMaster;
     }
 
@@ -70,6 +84,9 @@ public class UserService implements IUserService {
 
         List<UserMasterDTO> userMasters = categories.stream().map(user -> {
             UserMasterDTO userMaster = userMapper.toMasterDTO(user);
+            if (user.getRoles() != null) {
+                userMaster.setRole(user.getRoles().stream().map(role -> role.getName()).collect(Collectors.toSet()));
+            }
             return userMaster;
         }).toList();
 
@@ -92,6 +109,9 @@ public class UserService implements IUserService {
 
         Page<UserMasterDTO> userMasters = categories.map(user -> {
             UserMasterDTO userMaster = userMapper.toMasterDTO(user);
+            if (user.getRoles() != null) {
+                userMaster.setRole(user.getRoles().stream().map(role -> role.getName()).collect(Collectors.toSet()));
+            }
             return userMaster;
         });
 
@@ -112,9 +132,20 @@ public class UserService implements IUserService {
 
         User newUser = userMapper.toEntity(userDTO);
 
+        if (userDTO.getRoleId() != null) {
+            var roles = roleRepository.findById(userDTO.getRoleId());
+            if (roles.isPresent()) {
+                newUser.setRoles(Collections.singleton(roles.get()));
+            }
+        }
         newUser = userRepository.save(newUser);
 
-        return userMapper.toMasterDTO(newUser);
+        UserMasterDTO userMasterDTO = userMapper.toMasterDTO(newUser);
+
+        userMasterDTO.setRole(newUser.getRoles().stream().map(
+                role -> role.getName()).collect(Collectors.toSet()));
+
+        return userMasterDTO;
     }
 
     @Override
@@ -132,9 +163,19 @@ public class UserService implements IUserService {
         user = userMapper.toEntity(userDTO, user);
         user.setUpdatedAt(ZonedDateTime.now());
 
+        if (userDTO.getRoleId() != null) {
+            Optional<Role> role = roleRepository.findById(userDTO.getRoleId());
+            if (role.isPresent()) {
+                user.setRoles(Collections.singleton(role.get()));
+            }
+        }
+
         user = userRepository.save(user);
 
-        return userMapper.toMasterDTO(user);
+        UserMasterDTO userMasterDTO = userMapper.toMasterDTO(user);
+        userMasterDTO.setRole(user.getRoles().stream().map(role -> role.getName()).collect(Collectors.toSet()));
+
+        return userMasterDTO;
     }
 
     @Override

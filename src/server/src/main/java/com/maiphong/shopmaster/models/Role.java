@@ -1,7 +1,10 @@
 package com.maiphong.shopmaster.models;
 
+import java.util.Set;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import lombok.*;
 
@@ -16,4 +19,8 @@ public class Role extends MasterModel {
 
     @Column(columnDefinition = "NVARCHAR(100)")
     private String description;
+
+    @ManyToMany(mappedBy = "roles")
+    private Set<User> users;
+
 }
